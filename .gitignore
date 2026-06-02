@@ -2,6 +2,11 @@
 __pycache__/
 *.py[codz]
 *$py.class
+data/
+outputs/
+yolov8n.pt
+__pycache__/
+*.pyc
 
 # C extensions
 *.so
