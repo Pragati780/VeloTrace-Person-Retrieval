@@ -1,0 +1,26 @@
+# ─── Core AI / CV ─────────────────────────────────────────────
+# YOLOv8 – person detection (Ultralytics official package)
+ultralytics>=8.2.0
+
+# CLIP – zero-shot visual attribute matching (OpenAI)
+# Install with: pip install git+https://github.com/openai/CLIP.git
+# Listed as 'clip' below for clarity; see README for git install
+openai-clip @ git+https://github.com/openai/CLIP.git
+
+# DeepFace – facial attribute analysis (beard, age, gender, emotion)
+deepface>=0.0.93
+
+# MediaPipe – body landmark / pose estimation (Google)
+mediapipe>=0.10.0
+
+# ─── Image / Video processing ─────────────────────────────────
+opencv-python>=4.9.0
+Pillow>=10.3.0
+numpy>=1.26.0
+
+# ─── Deep learning backend ────────────────────────────────────
+torch>=2.2.0
+torchvision>=0.17.0
+
+# ─── Utilities ────────────────────────────────────────────────
+tqdm>=4.66.0
