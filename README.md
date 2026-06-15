@@ -1,3 +1,9 @@
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-green)
+![CLIP](https://img.shields.io/badge/CLIP-OpenAI-orange)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 # PersonFinder AI
 
 **Attribute-Based Person Retrieval from Surveillance Videos using YOLOv8 and Vision-Language Models**
