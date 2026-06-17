@@ -72,7 +72,7 @@ Timestamped Results Dashboard
 ┌─────────────────────────────────────────────────────────┐
 │                    Next.js Frontend                     │
 │                                                         │
-│  Upload Video  →  Attributes  →  Results Dashboard     │
+│  Upload Video  →  Attributes  →  Results Dashboard      │
 └───────────────────────┬─────────────────────────────────┘
                         │
                         ▼
