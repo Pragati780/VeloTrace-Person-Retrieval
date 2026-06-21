@@ -122,7 +122,7 @@ _registry = ModelRegistry()
 #  Step 1: Frame sampling
 # ──────────────────────────────────────────
 
-def sample_frames(video_path: str, sample_every: int = 10) -> tuple[list[tuple[int, np.ndarray]], float]:
+def sample_frames(video_path: str, sample_every: int = 30) -> tuple[list[tuple[int, np.ndarray]], float]:
     """
     Read video, return (frame_number, frame_array) pairs at every
     `sample_every` frames plus the video FPS.
@@ -252,18 +252,64 @@ def clip_score(crop_bgr: np.ndarray, positive_prompt: str) -> float:
 # ── 3b. HSV color fallback (fast, clothing-specific) ────────────
 
 _HSV_COLOR_MAP = {
-    "red":    [([0, 100, 80], [10, 255, 255]), ([160, 100, 80], [180, 255, 255])],
-    "blue":   [([100, 80, 50], [130, 255, 255])],
-    "green":  [([40, 60, 50], [80, 255, 255])],
-    "yellow": [([20, 100, 100], [35, 255, 255])],
-    "white":  [([0, 0, 180], [180, 40, 255])],
-    "black":  [([0, 0, 0], [180, 255, 50])],
-    "orange": [([10, 100, 100], [20, 255, 255])],
-    "pink":   [([140, 40, 150], [170, 255, 255])],
-    "purple": [([125, 50, 50], [155, 255, 255])],
-    "brown":  [([10, 60, 30], [20, 200, 120])],
-    "gray":   [([0, 0, 50], [180, 30, 200])],
+
+    # RED (wraps around HSV wheel)
+    "red": [
+        ([0, 150, 80], [8, 255, 255]),
+        ([172, 150, 80], [180, 255, 255]),
+    ],
+
+    # ORANGE
+    "orange": [
+        ([9, 150, 120], [18, 255, 255]),
+    ],
+
+    # YELLOW
+    "yellow": [
+        ([19, 150, 150], [32, 255, 255]),
+    ],
+
+    # GREEN
+    "green": [
+        ([45, 80, 60], [85, 255, 255]),
+    ],
+
+    # BLUE
+    "blue": [
+        ([100, 80, 60], [130, 255, 255]),
+    ],
+
+    # PURPLE
+    "purple": [
+        ([131, 80, 60], [145, 255, 255]),
+    ],
+
+    # PINK
+    "pink": [
+        ([146, 80, 150], [171, 255, 255]),
+    ],
+
+    # BROWN
+    "brown": [
+        ([10, 80, 30], [20, 255, 150]),
+    ],
+
+    # WHITE
+    "white": [
+        ([0, 0, 200], [180, 40, 255]),
+    ],
+
+    # GRAY
+    "gray": [
+        ([0, 0, 60], [180, 30, 200]),
+    ],
+
+    # BLACK
+    "black": [
+        ([0, 0, 0], [180, 255, 50]),
+    ],
 }
+
 
 def hsv_color_score(crop_bgr: np.ndarray, color_name: str, region: str = "torso") -> float:
     """
@@ -384,30 +430,59 @@ def extract_attribute_score(crop_bgr: np.ndarray, attr: AttributeRequest) -> flo
         cl_score = clip_score(crop_bgr, clip_prompt)
         return 0.5 * df_score + 0.5 * cl_score
 
-    # ─ Clothing color (shirt / top / jacket / etc.) ─
+        # ─ Clothing color (shirt / top / jacket / etc.) ─
     if color_word and any(item in name_lower for item in _CLOTHING_ITEMS):
         hsv_s = hsv_color_score(crop_bgr, color_word, region="torso")
+
+        if hsv_s < 0.20:
+            return 0.0
+
         clip_prompt = f"a person wearing a {attr.name}"
         cl_s = clip_score(crop_bgr, clip_prompt)
-        return 0.4 * hsv_s + 0.6 * cl_s
+
+        return 0.8 * hsv_s + 0.2 * cl_s
+
 
     # ─ Trouser / lower-body color ─
     if color_word and any(item in name_lower for item in _TROUSER_ITEMS):
         hsv_s = hsv_color_score(crop_bgr, color_word, region="lower")
+
+        if hsv_s < 0.20:
+            return 0.0
+
         clip_prompt = f"a person wearing {attr.name}"
         cl_s = clip_score(crop_bgr, clip_prompt)
-        return 0.4 * hsv_s + 0.6 * cl_s
 
-    # ─ Cap / hat ─
+        return 0.8 * hsv_s + 0.2 * cl_s
+
+
+    # ─ Cap / hat / helmet ─
     if any(item in name_lower for item in {"cap", "hat", "helmet"}):
-        hsv_s = (hsv_color_score(crop_bgr, color_word, region="head") if color_word else 0.0)
+        hsv_s = (
+            hsv_color_score(crop_bgr, color_word, region="head")
+            if color_word
+            else 0.0
+        )
+
+        if color_word and hsv_s < 0.15:
+            return 0.0
+
         clip_prompt = f"a person wearing a {attr.name}"
         cl_s = clip_score(crop_bgr, clip_prompt)
-        return 0.3 * hsv_s + 0.7 * cl_s
 
+        return 0.7 * hsv_s + 0.3 * cl_s if color_word else cl_s
+
+
+    # ─ Backpack / bag ─
+    if any(item in name_lower for item in {"backpack", "bag"}):
+        clip_prompt = f"a person carrying a {attr.name}"
+        return clip_score(crop_bgr, clip_prompt)
     # ─ Default: CLIP for everything else ─
     clip_prompt = f"a person with {attr.name}" if not name_lower.startswith("a ") else attr.name
     return clip_score(crop_bgr, clip_prompt)
+
+
+
 
 
 # ──────────────────────────────────────────
@@ -435,7 +510,13 @@ def compute_weighted_confidence(
         attribute_scores.get(a.name, 0.0) * a.weight
         for a in attributes
     )
-    return round(weighted_sum / total_weight, 4)
+    confidence = weighted_sum / total_weight
+    # Penalize missing high-priority attributes
+    for attr in attributes:
+        score = attribute_scores.get(attr.name, 0.0)
+        if attr.priority == "high" and score < 0.5:
+            confidence *= 0.5
+    return round(confidence, 4)
 
 
 # ──────────────────────────────────────────

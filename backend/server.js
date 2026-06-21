@@ -30,7 +30,10 @@ const PORT   = process.env.PORT || 4000;
 // ─── Directories ──────────────────────────────────────────────
 const UPLOADS_DIR = path.join(__dirname, "uploads");
 const OUTPUTS_DIR = path.join(__dirname, "outputs");
-const PYTHON_BIN = "D:\\Softwares\\Conda\\python.exe";
+const PYTHON_BIN =
+  process.env.PYTHON_BIN ||
+  "D:\\Softwares\\Conda\\python.exe";
+
 console.log("Using Python:", PYTHON_BIN);
 const PIPELINE    = path.join(__dirname, "../python/src/pipeline.py");
 
