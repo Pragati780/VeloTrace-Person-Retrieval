@@ -9,7 +9,8 @@ interface Props {
   onReset: () => void;
 }
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+const BACKEND =
+  "https://velotrace-person-retrieval-production.up.railway.app";
 
 function confidenceColor(pct: number) {
   if (pct >= 80) return "text-green-400";

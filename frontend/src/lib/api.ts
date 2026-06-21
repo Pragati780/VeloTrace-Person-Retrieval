@@ -5,7 +5,8 @@
  * Components stay clean and never touch fetch() directly.
  */
  
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+const BACKEND =
+  "https://velotrace-person-retrieval-production.up.railway.app";
  
 export interface AttributeRequest {
   name: string;
