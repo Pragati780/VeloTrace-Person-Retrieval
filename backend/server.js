@@ -42,7 +42,13 @@ const PIPELINE    = path.join(__dirname, "../python/src/pipeline.py");
 const jobs = new Map(); // jobId → { status, progress, result, sseClients }
 
 // ─── Middleware ───────────────────────────────────────────────
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://velo-trace-person-retrieval-c6etbp269.vercel.app"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Serve cropped person images directly (prefixed with /crops)
