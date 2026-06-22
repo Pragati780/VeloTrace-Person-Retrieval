@@ -5,7 +5,7 @@ ultralytics>=8.2.0
 # CLIP – zero-shot visual attribute matching (OpenAI)
 # Install with: pip install git+https://github.com/openai/CLIP.git
 # Listed as 'clip' below for clarity; see README for git install
-openai-clip @ git+https://github.com/openai/CLIP.git
+git+https://github.com/openai/CLIP.git
 
 # DeepFace – facial attribute analysis (beard, age, gender, emotion)
 deepface>=0.0.93
