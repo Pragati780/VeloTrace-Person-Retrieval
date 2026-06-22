@@ -6,7 +6,7 @@
  */
  
 const BACKEND =
-  "https://velotrace-person-retrieval-production.up.railway.app";
+  "https://velotrace-person-retrieval.onrender.com";
  
 export interface AttributeRequest {
   name: string;

@@ -10,7 +10,7 @@ interface Props {
 }
 
 const BACKEND =
-  "https://velotrace-person-retrieval-production.up.railway.app";
+  "https://velotrace-person-retrieval.onrender.com";
 
 function confidenceColor(pct: number) {
   if (pct >= 80) return "text-green-400";
